@@ -109,9 +109,9 @@ class QuotesSpider(scrapy.Spider):
 
         stock = ""
         if 'Dostępny' in availability_pi:
-            stock = 1
+            stock = "instock"
         else:
-            stock = 2
+            stock = "outofstock"
 
 
         
