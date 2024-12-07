@@ -10,6 +10,7 @@ from email.message import EmailMessage
 import google.auth
 # from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import re
 
 
 scopes = [
@@ -245,7 +246,11 @@ class QuotesSpider(scrapy.Spider):
         # item['rnum'] = self.row_count
         
         item['name'] = response.css('.name::text').get().strip()
-        item['productCode'] = response.css('.main-product__details-row.code > span::text').get()
+
+        product_code = response.css('.main-product__details-row.code > span::text').get()
+        if product_code:
+            product_code = re.sub(r'_outlet$', '', product_code, flags=re.IGNORECASE)  # Remove "_OUTLET" (case-insensitive)
+        item['productCode'] = product_code
         item['stock'] = stock
         
         item['salePrice'] = sale_price_afterEx
@@ -271,6 +276,17 @@ class QuotesSpider(scrapy.Spider):
 
     def closed(self, reason):
         print("Closed")
+
+        # Remove duplicates based on 'name' and 'productCode' (or other fields if needed)
+        unique_rows = []
+        seen = set()
+        for row in self.gsheet_rows:
+            unique_key = (row.get('name', ''), row.get('productCode', ''))  # Tuple of unique identifiers
+            if unique_key not in seen:
+                seen.add(unique_key)
+                unique_rows.append(row)
+
+        self.gsheet_rows = unique_rows
 
         headers = ['Name', 'Product code', 'Stock',  'RegularPrice', 'SalePrice']
         worksheet.insert_row(headers, index=1)
