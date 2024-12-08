@@ -12,6 +12,7 @@ BOT_NAME = 'basic_scrapy_spider'
 SPIDER_MODULES = ['basic_scrapy_spider.spiders']
 NEWSPIDER_MODULE = 'basic_scrapy_spider.spiders'
 
+LOG_STDOUT = TRUE
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'quotes_js_scraper (+http://www.yourdomain.com)'
